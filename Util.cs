@@ -1123,7 +1123,7 @@ namespace UtilLib
             }
         }
 
-        public static void Deserialize<T>(string txXml1, ref T sData1)
+        public static void Deserialize<T>(string txXml1, ref T sData1, bool flErrDsp1 = false)
         {
             if (!File.Exists(Application.StartupPath + "\\" + txXml1))
             {
@@ -1141,7 +1141,11 @@ namespace UtilLib
             }
             catch (Exception e1)
             {
-                MessageBox.Show("シリアライズに失敗しました。\n" + e1.Message);
+                if (flErrDsp1)
+                {
+                    // エラー表示あり
+                    MessageBox.Show("シリアライズに失敗しました。\n" + e1.Message);
+                }
             }
 
         }
@@ -1389,6 +1393,26 @@ namespace UtilLib
             return (aflData1);
         }
 
+        // 指定の文字列のSBDMハッシュ値を返します。
+        public static int GetHashSbdm(string txData1)
+        {
+            int dtHash1 = 0;
+
+            byte[] adtData1 = System.Text.Encoding.ASCII.GetBytes(txData1);
+
+            foreach(byte dtData1 in adtData1)
+            {
+                dtHash1 = GetHashSbdm(dtHash1, dtData1);
+            }
+
+            return (dtHash1);
+        }
+
+        // SBDMハッシュ値を指定の値で更新します。
+        public static int GetHashSbdm(int dtHash1, int dtChr1)
+        {
+            return (((dtChr1) + (dtHash1 << 6) + (dtHash1 << 16) - (dtHash1)));
+        }
     }
 
 }
