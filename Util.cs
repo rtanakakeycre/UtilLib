@@ -289,6 +289,17 @@ namespace UtilLib
             return (bFlag1);
         }
 
+        static public string GetExePath()
+        {
+            return (Assembly.GetEntryAssembly().Location);
+        }
+
+        // 指定のフォルダパス内にあるすべてのファイルリストを取得
+        static public List<string> GetFileListFromPath(string txDirPath1)
+        {
+            return (Directory.GetFiles(txDirPath1, "*", System.IO.SearchOption.AllDirectories).ToList());
+        }
+
         /// <summary>
         /// ダイアログよりフォルダパスを取得します。
         /// </summary>
@@ -330,10 +341,10 @@ namespace UtilLib
         /// </summary>
         /// <param name="txFileName1"></param>
         /// <param name="txTitle1"></param>
-        /// <param name="txFilter1"></param>
-        /// <param name="bCheckFlag1"></param>
+        /// <param name="txFilter1">Word Documents|*.doc|Office Files|*.doc;*.xls;*.ppt|All Files|*.*</param>
+        /// <param name="bCheckFlag1">ファイルが存在するかをチェック</param>
         /// <returns></returns>
-        static public string GetFilePathFromDlg(string txFileName1, string txTitle1, string txFilter1, bool bCheckFlag1)
+        static public string GetFilePathFromDlg(string txFileName1, string txTitle1, string txFilter1, bool bCheckFlag1 = false)
         {
             OpenFileDialog ofd = new OpenFileDialog();
 
