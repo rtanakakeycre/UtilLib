@@ -289,9 +289,16 @@ namespace UtilLib
             return (bFlag1);
         }
 
+        // EXEファイルパスを取得
         static public string GetExePath()
         {
             return (Assembly.GetEntryAssembly().Location);
+        }
+
+        // EXEファイルのフォルダパスを取得
+        static public string GetExeDirPath()
+        {
+            return (GetDirPathFromFilePath(GetExePath()));
         }
 
         // 指定のフォルダパス内にあるすべてのファイルリストを取得
@@ -329,11 +336,22 @@ namespace UtilLib
             //ダイアログを表示する
             if (ofd.ShowDialog() == DialogResult.OK)
             {
+
                 string txPath1 = ofd.FileName;
-                txDirPath2 = System.IO.Path.GetDirectoryName(txPath1);
+                txDirPath2 = GetDirPathFromFilePath(txPath1);
             }
 
             return (txDirPath2);
+        }
+
+        /// <summary>
+        /// ファイルパスよりフォルダパスを取得します。
+        /// </summary>
+        static public string GetDirPathFromFilePath(string txFilePath1)
+        {
+            string txDirPath1 = System.IO.Path.GetDirectoryName(txFilePath1);
+        
+            return (txDirPath1);
         }
 
         /// <summary>
