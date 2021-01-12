@@ -1134,9 +1134,10 @@ namespace UtilLib
             }
         }
 
-        public static void Deserialize<T>(string txXml1, ref T sData1, bool flErrDsp1 = false)
+        // XMLデシリアライズ
+        public static void Deserialize<T>(string txXmlFile1, ref T sData1, bool flErrDsp1 = false)
         {
-            if (!File.Exists(Application.StartupPath + "\\" + txXml1))
+            if (!File.Exists(txXmlFile1))
             {
                 return;
             }
@@ -1144,7 +1145,7 @@ namespace UtilLib
             try
             {
                 XmlSerializer sXs1 = new XmlSerializer(typeof(T));
-                FileStream sFs1 = new FileStream(Application.StartupPath + "\\" + txXml1, FileMode.Open);
+                FileStream sFs1 = new FileStream(txXmlFile1, FileMode.Open);
 
                 sData1 = (T)sXs1.Deserialize(sFs1);
 
@@ -1155,18 +1156,20 @@ namespace UtilLib
                 if (flErrDsp1)
                 {
                     // エラー表示あり
-                    MessageBox.Show("シリアライズに失敗しました。\n" + e1.Message);
+                    MessageBox.Show("デシリアライズに失敗しました。\n" + e1.Message);
                 }
             }
 
         }
 
-        public static void Serialize<T>(string txXml1, T sData1)
+        // XMLシリアライズ
+        public static void Serialize<T>(string txXmlFile1, T sData1)
         {
+            XmlSerializer sXs1;
             try
             {
-                XmlSerializer sXs1 = new XmlSerializer(typeof(T));
-                FileStream sFs1 = new FileStream(Application.StartupPath + "\\" + txXml1, FileMode.Create);
+                sXs1 = new XmlSerializer(typeof(T));
+                FileStream sFs1 = new FileStream(txXmlFile1, FileMode.Create);
 
                 sXs1.Serialize(sFs1, sData1);
 
