@@ -289,9 +289,15 @@ namespace UtilLib
             return (bFlag1);
         }
 
-        static public string GetExePath()
+        //static public string GetExePath()
+        //{
+        //    return (Assembly.GetEntryAssembly().Location);
+        //}
+
+        // Exeパスを取得
+        public static string GetExePath()
         {
-            return (Assembly.GetEntryAssembly().Location);
+            return (AppDomain.CurrentDomain.BaseDirectory);
         }
 
         // 指定のフォルダパス内にあるすべてのファイルリストを取得
@@ -1427,6 +1433,7 @@ namespace UtilLib
         {
             return (((dtChr1) + (dtHash1 << 6) + (dtHash1 << 16) - (dtHash1)));
         }
+
     }
 
 }
