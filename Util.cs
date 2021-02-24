@@ -738,7 +738,7 @@ namespace UtilLib
         static public bool IsMatchTextLeft(string txAll1, string txLeft1)
         {
             bool flRes1 = false;
-            if(txAll1.Substring(0, txLeft1.Length) == txLeft1)
+            if(txAll1.Substring(0, Math.Min(txAll1.Length, txLeft1.Length)) == txLeft1)
             {
                 flRes1 = true;
             }
