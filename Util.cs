@@ -734,6 +734,16 @@ namespace UtilLib
 
         }
 
+        // テキストの左部分とマッチするか？
+        static public bool IsMatchTextLeft(string txAll1, string txLeft1)
+        {
+            bool flRes1 = false;
+            if(txAll1.Substring(0, txLeft1.Length) == txLeft1)
+            {
+                flRes1 = true;
+            }
+            return (flRes1);
+        }
 
         [DllImport("user32.dll")]
         public static extern IntPtr SendMessage(
