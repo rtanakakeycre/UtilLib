@@ -306,6 +306,18 @@ namespace UtilLib
             return (Directory.GetFiles(txDirPath1, "*", System.IO.SearchOption.AllDirectories).ToList());
         }
 
+        // 指定のファイルパスからファイル名を取得
+        static public string GetFileName(string txPath1)
+        {
+            return (Path.GetFileName(txPath1));
+        }
+
+        // 指定のファイルパスからパスのみ取得
+        static public string GetDriPath(string txPath1)
+        {
+            return (Path.GetDirectoryName(txPath1));
+        }
+
         /// <summary>
         /// ダイアログよりフォルダパスを取得します。
         /// </summary>
@@ -1018,10 +1030,10 @@ namespace UtilLib
         /// <summary>
         /// カレントパスと相対パスから絶対パスを取得します。
         /// </summary>
-        /// <param name="txBathPath1"></param>
+        /// <param name="txBasePath1"></param>
         /// <param name="txRelPath1"></param>
         /// <returns></returns>
-        public static string GetAbsPath(string txBathPath1, string txRelPath1)
+        public static string GetAbsPath(string txBasePath1, string txRelPath1)
         {
             string txAbsPath1 = "";
 
@@ -1032,7 +1044,7 @@ namespace UtilLib
             }
             else
             {
-                txAbsPath1 = txBathPath1 + @"\" + txRelPath1;
+                txAbsPath1 = txBasePath1 + @"\" + txRelPath1;
             }
 
             return (txAbsPath1);
