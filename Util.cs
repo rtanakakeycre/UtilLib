@@ -96,7 +96,7 @@ namespace UtilLib
     public class Com
     {
         public const int RCV_CMD_LEN_MAX = 32;
-        public const int SRI_RCV_DATA_SIZE = 256;
+        public const int SRI_RCV_DATA_SIZE = 4096;
         public const int MMF_SIZE = 16384;
         public const int DFL_LOG_GAME = 10;
         public const int EASY_CHK_BUF_MAX = 1024;
