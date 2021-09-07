@@ -289,15 +289,33 @@ namespace UtilLib
             return (bFlag1);
         }
 
-        static public string GetExePath()
+        //static public string GetExePath()
+        //{
+        //    return (Assembly.GetEntryAssembly().Location);
+        //}
+
+        // Exeパスを取得
+        public static string GetExePath()
         {
-            return (Assembly.GetEntryAssembly().Location);
+            return (AppDomain.CurrentDomain.BaseDirectory);
         }
 
         // 指定のフォルダパス内にあるすべてのファイルリストを取得
         static public List<string> GetFileListFromPath(string txDirPath1)
         {
             return (Directory.GetFiles(txDirPath1, "*", System.IO.SearchOption.AllDirectories).ToList());
+        }
+
+        // 指定のファイルパスからファイル名を取得
+        static public string GetFileName(string txPath1)
+        {
+            return (Path.GetFileName(txPath1));
+        }
+
+        // 指定のファイルパスからパスのみ取得
+        static public string GetDriPath(string txPath1)
+        {
+            return (Path.GetDirectoryName(txPath1));
         }
 
         /// <summary>
@@ -716,6 +734,16 @@ namespace UtilLib
 
         }
 
+        // テキストの左部分とマッチするか？
+        static public bool IsMatchTextLeft(string txAll1, string txLeft1)
+        {
+            bool flRes1 = false;
+            if(txAll1.Substring(0, Math.Min(txAll1.Length, txLeft1.Length)) == txLeft1)
+            {
+                flRes1 = true;
+            }
+            return (flRes1);
+        }
 
         [DllImport("user32.dll")]
         public static extern IntPtr SendMessage(
@@ -1012,10 +1040,10 @@ namespace UtilLib
         /// <summary>
         /// カレントパスと相対パスから絶対パスを取得します。
         /// </summary>
-        /// <param name="txBathPath1"></param>
+        /// <param name="txBasePath1"></param>
         /// <param name="txRelPath1"></param>
         /// <returns></returns>
-        public static string GetAbsPath(string txBathPath1, string txRelPath1)
+        public static string GetAbsPath(string txBasePath1, string txRelPath1)
         {
             string txAbsPath1 = "";
 
@@ -1026,7 +1054,7 @@ namespace UtilLib
             }
             else
             {
-                txAbsPath1 = txBathPath1 + @"\" + txRelPath1;
+                txAbsPath1 = txBasePath1 + @"\" + txRelPath1;
             }
 
             return (txAbsPath1);
@@ -1427,6 +1455,7 @@ namespace UtilLib
         {
             return (((dtChr1) + (dtHash1 << 6) + (dtHash1 << 16) - (dtHash1)));
         }
+
     }
 
 }
