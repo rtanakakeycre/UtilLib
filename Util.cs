@@ -37,6 +37,15 @@ namespace UtilLib
         }
     }
 
+    // ポートタイプ
+    public enum ePORT_TYPE
+    {
+        [Description("シリアル")] SER,
+        [Description("プロセス")] PRS,
+        [Description("USB")] USB,
+        LMT
+    };
+
     public enum eSER_BRT
     {
         _300,
