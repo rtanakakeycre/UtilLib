@@ -1456,6 +1456,41 @@ namespace UtilLib
             return (((dtChr1) + (dtHash1 << 6) + (dtHash1 << 16) - (dtHash1)));
         }
 
+        // enumの型から別称リストと値のリストを取得
+        public static sTX_INT[] GetDescriptionListFromEnum(Type type1)
+        {
+            sTX_INT[] asDesc1 = new sTX_INT[Enum.GetValues(type1).Length - 1];
+            int idItem1 = 0;
+            foreach (var dtItem1 in Enum.GetValues(type1))
+            {
+                if (Enum.GetName(type1, dtItem1) == "LMT")
+                {
+
+                }
+                else
+                {
+                    asDesc1[idItem1] = new sTX_INT(GetDescription(dtItem1), (int)dtItem1);
+                    idItem1++;
+                }
+            }
+            return (asDesc1);
+        }
+
+        // enumの値から別称を取得
+        public static string GetDescription(object value)
+        {
+            string description = null;
+
+            FieldInfo fieldInfo = value.GetType().GetField(value.ToString());
+            Attribute attr = Attribute.GetCustomAttribute(fieldInfo, typeof(DescriptionAttribute));
+            if (attr != null)
+            {
+                DescriptionAttribute descAttr = (DescriptionAttribute)attr;
+                description = descAttr.Description;
+            }
+            return description;
+        }
+
     }
 
 }
