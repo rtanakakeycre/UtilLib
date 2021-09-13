@@ -112,12 +112,12 @@ namespace UtilLib
         public const int EASY_CHK_DATA_MAX = 1024;
 
         static public string[] m_atxPortName;        // ポート
-        static public sTX_INT[] m_asBaudRate;        // ボーレート
-        static public sTX_INT[] m_asDataBits1;        // データビット
+        static public int[] m_adtSerBrt;        // シリアルボーレート
+        static public int[] m_adtDataBit1;        // データビット
         static public sTX_INT[] m_asParity1;        // パリティビット
         static public sTX_INT[] m_asStopBits1;        // ストップビット
         static public sTX_INT[] m_asHandShake1;        // ハンドシェイク
-        static public sTX_INT[] m_asUsbBaudRate;        // USBボーレート
+        static public int[] m_adtUsbBrt;        // USBボーレート
 
         static Com()
         {
@@ -125,30 +125,36 @@ namespace UtilLib
 
             m_atxPortName = SerialPort.GetPortNames();
 
-            m_asDataBits1 = new sTX_INT[] {
-                new sTX_INT("5", 5),
-                new sTX_INT("6", 6),
-                new sTX_INT("7", 7),
-                new sTX_INT("8", 8),
+            m_adtDataBit1 = new int[] {
+                5,
+                6,
+                7,
+                8,
             };
 
-            // ボーレート設定
-            m_asBaudRate = new sTX_INT[(int)eSER_BRT.LMT] {
-                new sTX_INT("300", 300),
-                new sTX_INT("600", 600),
-                new sTX_INT("1200", 1200),
-                new sTX_INT("2400", 2400),
-                new sTX_INT("4800", 4800),
-                new sTX_INT("9600", 9600),
-                new sTX_INT("14400", 14400),
-                new sTX_INT("19200", 19200),
-                new sTX_INT("28800", 28800),
-                new sTX_INT("38400", 38400),
-                new sTX_INT("57600", 57600),
-                new sTX_INT("115200", 115200),
-                new sTX_INT("230400", 230400),
-                new sTX_INT("208333", 208333),
-                new sTX_INT("312500", 312500),
+            // シリアルボーレート設定
+            m_adtSerBrt = new int[] {
+                300,
+                600,
+                1200,
+                2400,
+                4800,
+                9600,
+                14400,
+                19200,
+                28800,
+                38400,
+                57600,
+                115200,
+                230400,
+                208333,
+                312500,
+            };
+
+            // USBボーレート設定
+            m_adtUsbBrt = new int[] {
+                9600,
+                76800,
             };
 
             // ハンドシェイク
@@ -176,30 +182,6 @@ namespace UtilLib
                 new sTX_INT("スペース", (int)Parity.Space),
             };
 
-            // ボーレート設定
-            m_asBaudRate = new sTX_INT[(int)eSER_BRT.LMT] {
-                new sTX_INT("300", 300),
-                new sTX_INT("600", 600),
-                new sTX_INT("1200", 1200),
-                new sTX_INT("2400", 2400),
-                new sTX_INT("4800", 4800),
-                new sTX_INT("9600", 9600),
-                new sTX_INT("14400", 14400),
-                new sTX_INT("19200", 19200),
-                new sTX_INT("28800", 28800),
-                new sTX_INT("38400", 38400),
-                new sTX_INT("57600", 57600),
-                new sTX_INT("115200", 115200),
-                new sTX_INT("230400", 230400),
-                new sTX_INT("208333", 208333),
-                new sTX_INT("312500", 312500),
-            };
-
-            // ボーレート設定
-            m_asUsbBaudRate = new sTX_INT[(int)eUSB_BRT.LMT] {
-                new sTX_INT("9600", 9600),
-                new sTX_INT("76800", 76800),
-            };
         }
 
         public Com()
