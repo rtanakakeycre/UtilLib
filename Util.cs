@@ -113,10 +113,10 @@ namespace UtilLib
 
         static public string[] m_atxPortName;        // ポート
         static public int[] m_adtSerBrt;        // シリアルボーレート
-        static public int[] m_adtDataBit1;        // データビット
+        static public int[] m_adtDataBit1;        // データ長
         static public sTX_INT[] m_asParity1;        // パリティビット
-        static public sTX_INT[] m_asStopBits1;        // ストップビット
-        static public sTX_INT[] m_asHandShake1;        // ハンドシェイク
+        static public sTX_INT[] m_asStopBit1;        // ストップビット
+        static public sTX_INT[] m_asFlwCtl1;        // フロー制御
         static public int[] m_adtUsbBrt;        // USBボーレート
 
         static Com()
@@ -157,8 +157,8 @@ namespace UtilLib
                 76800,
             };
 
-            // ハンドシェイク
-            m_asHandShake1 = new sTX_INT[] {
+            // フロー制御
+            m_asFlwCtl1 = new sTX_INT[] {
                 new sTX_INT("なし", (int)Handshake.None),
                 new sTX_INT("XON/XOFF制御", (int)Handshake.XOnXOff),
                 new sTX_INT("RTS/CTS制御", (int)Handshake.RequestToSend),
@@ -166,7 +166,7 @@ namespace UtilLib
             };
 
             // ストップビット
-            m_asStopBits1 = new sTX_INT[] {
+            m_asStopBit1 = new sTX_INT[] {
                 new sTX_INT("なし", (int)StopBits.None),
                 new sTX_INT("1", (int)StopBits.One),
                 new sTX_INT("1.5", (int)StopBits.OnePointFive),
@@ -1482,6 +1482,105 @@ namespace UtilLib
             return description;
         }
 
+
+        /// <summary>
+        /// 指定したコントロールのイベントを一時的に無効化し、処理を実行します
+        /// </summary>
+        /// <param name="control">対象コントロールの入ったList</param>
+        /// <param name="action">実行したいイベント</param>
+        public static void DoSomethingWithoutEvents(List<System.Windows.Forms.Control> control, Action action)
+        {
+            if (control == null)
+                throw new ArgumentNullException();
+            if (action == null)
+                throw new ArgumentNullException();
+            foreach (var ctrl in control)
+            {
+                var eventHandlerInfo = RemoveAllEvents(ctrl);
+                try
+                {
+                    action();
+                }
+                finally
+                {
+                    RestoreEvents(eventHandlerInfo);
+                }
+            }
+        }
+        private static List<EventHandlerInfo> RemoveAllEvents(System.Windows.Forms.Control root)
+        {
+            var ret = new List<EventHandlerInfo>();
+            GetAllControls(root).ForEach((x) =>
+                ret.AddRange(RemoveEvents(x)));
+            return ret;
+        }
+        private static List<System.Windows.Forms.Control> GetAllControls(System.Windows.Forms.Control root)
+        {
+            var ret = new List<System.Windows.Forms.Control>() { root };
+            ret.AddRange(GetInnerControls(root));
+            return ret;
+        }
+        private static List<System.Windows.Forms.Control> GetInnerControls(System.Windows.Forms.Control root)
+        {
+            var ret = new List<System.Windows.Forms.Control>();
+            foreach (System.Windows.Forms.Control control in root.Controls)
+            {
+                ret.Add(control);
+                ret.AddRange(GetInnerControls(control));
+            }
+            return ret;
+        }
+        private static EventHandlerList GetEventHandlerList(System.Windows.Forms.Control control)
+        {
+            const string EVENTS = "EVENTS";
+            const BindingFlags FLAG = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase;
+            return (EventHandlerList)control.GetType().GetProperty(EVENTS, FLAG).GetValue(control, null);
+        }
+        private static List<object> GetEvents(System.Windows.Forms.Control control)
+        {
+            return GetEvents(control, control.GetType());
+        }
+        private static List<object> GetEvents(System.Windows.Forms.Control control, Type type)
+        {
+            const string EVENT = "EVENT";
+            const BindingFlags FLAG = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+            var ret = type.GetFields(FLAG).Where((x) =>
+                x.Name.ToUpper().StartsWith(EVENT)).Select((x) =>
+            x.GetValue(control)).ToList();
+            if (!type.Equals(typeof(System.Windows.Forms.Control)))
+                ret.AddRange(GetEvents(control, type.BaseType));
+            return ret;
+        }
+        private static List<EventHandlerInfo> RemoveEvents(System.Windows.Forms.Control control)
+        {
+            var ret = new List<EventHandlerInfo>();
+            var list = GetEventHandlerList(control);
+            foreach (var x in GetEvents(control))
+            {
+                ret.Add(new EventHandlerInfo(x, list, list[x]));
+                list.RemoveHandler(x, list[x]);
+            }
+            return ret;
+        }
+        private static void RestoreEvents(List<EventHandlerInfo> eventInfoList)
+        {
+            if (eventInfoList == null)
+                return;
+            eventInfoList.ForEach((x) =>
+                x.EventHandlerList.AddHandler(x.Key, x.EventHandler));
+        }
+        private sealed class EventHandlerInfo
+        {
+            public EventHandlerInfo(object key, EventHandlerList eventHandlerList, Delegate eventHandler)
+            {
+                this.Key = key;
+                this.EventHandlerList = eventHandlerList;
+                this.EventHandler = eventHandler;
+            }
+            public object Key { get; private set; }
+            public EventHandlerList EventHandlerList { get; private set; }
+            public Delegate EventHandler { get; private set; }
+        }
     }
 
 }
