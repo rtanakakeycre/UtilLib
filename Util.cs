@@ -37,63 +37,6 @@ namespace UtilLib
         }
     }
 
-    // ポートタイプ
-    public enum ePORT_TYPE
-    {
-        [Description("シリアル")] SER,
-        [Description("プロセス")] PRS,
-        [Description("USB")] USB,
-        LMT
-    };
-
-    public enum eSER_BRT
-    {
-        _300,
-        _600,
-        _1200,
-        _2400,
-        _4800,
-        _9600,
-        _14400,
-        _19200,
-        _28800,
-        _38400,
-        _57600,
-        _115200,
-        _230400,
-        _208333,
-        _312500,
-        LMT
-    };
-
-    // ハンドシェイク
-    public enum eSER_HSK
-    {
-        _300,
-        _600,
-        _1200,
-        _2400,
-        _4800,
-        _9600,
-        _14400,
-        _19200,
-        _28800,
-        _38400,
-        _57600,
-        _115200,
-        _230400,
-        _208333,
-        _312500,
-        LMT
-    };
-
-    public enum eUSB_BRT
-    {
-        _9600,
-        _76800,
-        LMT
-    };
-
     public enum eREEL
     {
         L,
@@ -104,107 +47,13 @@ namespace UtilLib
 
     public class Com
     {
-        public const int RCV_CMD_LEN_MAX = 32;
-        public const int SRI_RCV_DATA_SIZE = 256;
-        public const int MMF_SIZE = 16384;
-        public const int DFL_LOG_GAME = 10;
-        public const int EASY_CHK_BUF_MAX = 1024;
-        public const int EASY_CHK_DATA_MAX = 1024;
-
-        static public string[] m_atxPortName;        // ポート
-        static public int[] m_adtSerBrt;        // シリアルボーレート
-        static public int[] m_adtDataBit1;        // データ長
-        static public sTX_INT[] m_asParity1;        // パリティビット
-        static public sTX_INT[] m_asStopBit1;        // ストップビット
-        static public sTX_INT[] m_asFlwCtl1;        // フロー制御
-        static public int[] m_adtUsbBrt;        // USBボーレート
-
         static Com()
         {
-            //! 利用可能なシリアルポート名の配列を取得する.
-
-            m_atxPortName = SerialPort.GetPortNames();
-
-            m_adtDataBit1 = new int[] {
-                5,
-                6,
-                7,
-                8,
-            };
-
-            // シリアルボーレート設定
-            m_adtSerBrt = new int[] {
-                300,
-                600,
-                1200,
-                2400,
-                4800,
-                9600,
-                14400,
-                19200,
-                28800,
-                38400,
-                57600,
-                115200,
-                230400,
-                208333,
-                312500,
-            };
-
-            // USBボーレート設定
-            m_adtUsbBrt = new int[] {
-                9600,
-                76800,
-            };
-
-            // フロー制御
-            m_asFlwCtl1 = new sTX_INT[] {
-                new sTX_INT("なし", (int)Handshake.None),
-                new sTX_INT("XON/XOFF制御", (int)Handshake.XOnXOff),
-                new sTX_INT("RTS/CTS制御", (int)Handshake.RequestToSend),
-                new sTX_INT("XON/XOFF + RTS/CTS制御", (int)Handshake.RequestToSendXOnXOff),
-            };
-
-            // ストップビット
-            m_asStopBit1 = new sTX_INT[] {
-                new sTX_INT("なし", (int)StopBits.None),
-                new sTX_INT("1", (int)StopBits.One),
-                new sTX_INT("1.5", (int)StopBits.OnePointFive),
-                new sTX_INT("2", (int)StopBits.Two),
-            };
-
-            // パリティ
-            m_asParity1 = new sTX_INT[] {
-                new sTX_INT("なし", (int)Parity.None),
-                new sTX_INT("奇数", (int)Parity.Odd),
-                new sTX_INT("偶数", (int)Parity.Even),
-                new sTX_INT("マーク", (int)Parity.Mark),
-                new sTX_INT("スペース", (int)Parity.Space),
-            };
-
         }
 
         public Com()
         {
 
-        }
-
-        // COM名からポート番号を取得
-        public static int GetPortIndx(string txPort1)
-        {
-            int idPort1 = -1;
-
-            int idPort2;
-            for (idPort2 = 0; idPort2 < m_atxPortName.Length; idPort2++)
-            {
-                if (m_atxPortName[idPort2] == txPort1)
-                {
-                    idPort1 = idPort2;
-                    break;
-                }
-            }
-
-            return (idPort1);
         }
 
         public enum eBASE_KIND
