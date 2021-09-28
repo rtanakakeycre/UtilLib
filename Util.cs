@@ -1010,10 +1010,11 @@ namespace UtilLib
                 return;
             }
 
+            FileStream sFs1 = null;
             try
             {
                 XmlSerializer sXs1 = new XmlSerializer(typeof(T));
-                FileStream sFs1 = new FileStream(txXmlFile1, FileMode.Open);
+                sFs1 = new FileStream(txXmlFile1, FileMode.Open);
 
                 sData1 = (T)sXs1.Deserialize(sFs1);
 
@@ -1027,6 +1028,13 @@ namespace UtilLib
                     MessageBox.Show("デシリアライズに失敗しました。\n" + e1.Message);
                 }
             }
+            finally
+            {
+                if(sFs1 != null)
+                {
+                    sFs1.Close();
+                }
+            }
 
         }
 
@@ -1034,10 +1042,11 @@ namespace UtilLib
         public static void Serialize<T>(string txXmlFile1, T sData1)
         {
             XmlSerializer sXs1;
+            FileStream sFs1 = null;
             try
             {
                 sXs1 = new XmlSerializer(typeof(T));
-                FileStream sFs1 = new FileStream(txXmlFile1, FileMode.Create);
+                sFs1 = new FileStream(txXmlFile1, FileMode.Create);
 
                 sXs1.Serialize(sFs1, sData1);
 
@@ -1046,6 +1055,13 @@ namespace UtilLib
             catch (Exception e1)
             {
                 MessageBox.Show("シリアライズに失敗しました。\n" + e1.Message);
+            }
+            finally
+            {
+                if (sFs1 != null)
+                {
+                    sFs1.Close();
+                }
             }
         }
 
