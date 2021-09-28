@@ -1017,8 +1017,6 @@ namespace UtilLib
                 sFs1 = new FileStream(txXmlFile1, FileMode.Open);
 
                 sData1 = (T)sXs1.Deserialize(sFs1);
-
-                sFs1.Close();
             }
             catch (Exception e1)
             {
@@ -1049,8 +1047,6 @@ namespace UtilLib
                 sFs1 = new FileStream(txXmlFile1, FileMode.Create);
 
                 sXs1.Serialize(sFs1, sData1);
-
-                sFs1.Close();
             }
             catch (Exception e1)
             {
