@@ -1256,7 +1256,6 @@ namespace UtilLib
                 DefaultValueAttribute sAttName2 = (DefaultValueAttribute)srcProperty.GetCustomAttribute(typeof(DefaultValueAttribute));
                 if (sAttName2 == null)
                 {
-                    throw new Exception(srcProperty.Name + "に" + "「DefaultValueAttribute」" + "属性が設定されていません。");
                 }
                 else
                 {
