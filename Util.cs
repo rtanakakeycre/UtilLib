@@ -1154,10 +1154,11 @@ namespace UtilLib
         }
 
         // XMLデシリアライズ
-        public static void Deserialize<T>(string txXmlFile1, ref T sData1, bool flErrDsp1 = false)
+        public static void Deserialize<T>(string txXmlFile1, ref T sData1, bool flErrDsp1 = false) where T : new()
         {
             if (!File.Exists(txXmlFile1))
             {
+                sData1 = new T();
                 return;
             }
 
