@@ -166,28 +166,28 @@ namespace UtilLib
         /// <returns></returns>
         static public string GetDirPathFromDlg(string txDirPath1, string txTitle1)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
+            OpenFileDialog sOfd1 = new OpenFileDialog();
 
             //string txInitDirPath1 = System.IO.Path.GetDirectoryName(txFileName1);
 
-            ofd.FileName = "任意のファイル";
-            ofd.InitialDirectory = txDirPath1;
-            ofd.Filter = "すべてのファイル(*.*)|*.*";
-            ofd.FilterIndex = 1;
+            sOfd1.FileName = "任意のファイル";
+            sOfd1.InitialDirectory = txDirPath1;
+            sOfd1.Filter = "すべてのファイル(*.*)|*.*";
+            sOfd1.FilterIndex = 1;
             //if (txInitDirPath1 != "")
             //{
             //    ofd.InitialDirectory = txInitDirPath1;
             //}
-            ofd.Title = txTitle1;
-            ofd.RestoreDirectory = false;
-            ofd.CheckFileExists = false;
-            ofd.CheckPathExists = true;
+            sOfd1.Title = txTitle1;
+            sOfd1.RestoreDirectory = false;
+            sOfd1.CheckFileExists = false;
+            sOfd1.CheckPathExists = true;
 
             string txDirPath2 = "";
             //ダイアログを表示する
-            if (ofd.ShowDialog() == DialogResult.OK)
+            if (sOfd1.ShowDialog() == DialogResult.OK)
             {
-                string txPath1 = ofd.FileName;
+                string txPath1 = sOfd1.FileName;
                 txDirPath2 = System.IO.Path.GetDirectoryName(txPath1);
             }
 
@@ -204,7 +204,7 @@ namespace UtilLib
         /// <returns></returns>
         static public string GetFilePathFromDlg(string txFileName1, string txTitle1, string txFilter1, bool bCheckFlag1 = false)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
+            OpenFileDialog sOfd1 = new OpenFileDialog();
 
             string txFileName2 = "";
             string txInitDirPath1 = "";
@@ -222,23 +222,23 @@ namespace UtilLib
                 txInitDirPath1 = System.IO.Path.GetDirectoryName(txFileName1);
             }
 
-            ofd.FileName = txFileName2;
-            ofd.Filter = txFilter1;
-            ofd.FilterIndex = 1;
+            sOfd1.FileName = txFileName2;
+            sOfd1.Filter = txFilter1;
+            sOfd1.FilterIndex = 1;
             if (txInitDirPath1 != "")
             {
-                ofd.InitialDirectory = txInitDirPath1;
+                sOfd1.InitialDirectory = txInitDirPath1;
             }
-            ofd.Title = txTitle1;
-            ofd.RestoreDirectory = false;
-            ofd.CheckFileExists = bCheckFlag1;
-            ofd.CheckPathExists = true;
+            sOfd1.Title = txTitle1;
+            sOfd1.RestoreDirectory = false;
+            sOfd1.CheckFileExists = bCheckFlag1;
+            sOfd1.CheckPathExists = true;
 
             string txPath1 = "";
             //ダイアログを表示する
-            if (ofd.ShowDialog() == DialogResult.OK)
+            if (sOfd1.ShowDialog() == DialogResult.OK)
             {
-                txPath1 = ofd.FileName;
+                txPath1 = sOfd1.FileName;
             }
 
             return (txPath1);
@@ -255,7 +255,7 @@ namespace UtilLib
         /// <returns></returns>
         static public string[] GetFilePathFromDlg(string txFileName1, string txTitle1, string txFilter1, bool bCheckFlag1, bool flMlt1)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
+            OpenFileDialog sOfd1 = new OpenFileDialog();
 
             string txFileName2 = "";
             string txInitDirPath1 = "";
@@ -266,24 +266,24 @@ namespace UtilLib
                 txInitDirPath1 = System.IO.Path.GetDirectoryName(txFileName1);
             }
 
-            ofd.FileName = txFileName2;
-            ofd.Filter = txFilter1;
-            ofd.FilterIndex = 1;
+            sOfd1.FileName = txFileName2;
+            sOfd1.Filter = txFilter1;
+            sOfd1.FilterIndex = 1;
             if (txInitDirPath1 != "")
             {
-                ofd.InitialDirectory = txInitDirPath1;
+                sOfd1.InitialDirectory = txInitDirPath1;
             }
-            ofd.Title = txTitle1;
-            ofd.RestoreDirectory = false;
-            ofd.CheckFileExists = bCheckFlag1;
-            ofd.CheckPathExists = true;
-            ofd.Multiselect = flMlt1;
+            sOfd1.Title = txTitle1;
+            sOfd1.RestoreDirectory = false;
+            sOfd1.CheckFileExists = bCheckFlag1;
+            sOfd1.CheckPathExists = true;
+            sOfd1.Multiselect = flMlt1;
 
             string[] atxPath1 = new string[0];
             //ダイアログを表示する
-            if (ofd.ShowDialog() == DialogResult.OK)
+            if (sOfd1.ShowDialog() == DialogResult.OK)
             {
-                atxPath1 = ofd.FileNames;
+                atxPath1 = sOfd1.FileNames;
             }
 
             return (atxPath1);
@@ -299,28 +299,28 @@ namespace UtilLib
         /// <returns></returns>
         static public string GetSaveFilePathFromDlg(string txFileName1, string txTitle1, string txFilter1, bool bCheckFlag1)
         {
-            SaveFileDialog sfd1 = new SaveFileDialog();
+            SaveFileDialog sOfd1 = new SaveFileDialog();
 
             string txFileName2 = System.IO.Path.GetFileName(txFileName1);
             string txInitDirPath1 = System.IO.Path.GetDirectoryName(txFileName1);
 
-            sfd1.FileName = txFileName2;
-            sfd1.Filter = txFilter1;
-            sfd1.FilterIndex = 1;
+            sOfd1.FileName = txFileName2;
+            sOfd1.Filter = txFilter1;
+            sOfd1.FilterIndex = 1;
             if (txInitDirPath1 != "")
             {
-                sfd1.InitialDirectory = txInitDirPath1;
+                sOfd1.InitialDirectory = txInitDirPath1;
             }
-            sfd1.Title = txTitle1;
-            sfd1.RestoreDirectory = false;
-            sfd1.CheckFileExists = bCheckFlag1;
-            sfd1.CheckPathExists = true;
+            sOfd1.Title = txTitle1;
+            sOfd1.RestoreDirectory = false;
+            sOfd1.CheckFileExists = bCheckFlag1;
+            sOfd1.CheckPathExists = true;
 
             string txPath1 = "";
             //ダイアログを表示する
-            if (sfd1.ShowDialog() == DialogResult.OK)
+            if (sOfd1.ShowDialog() == DialogResult.OK)
             {
-                txPath1 = sfd1.FileName;
+                txPath1 = sOfd1.FileName;
             }
 
             return (txPath1);
@@ -384,6 +384,7 @@ namespace UtilLib
             }
         }
 
+        // ファイルの文字コードを可能な限り解析して返す
         static public System.Text.Encoding GetFileEncoding(string txFilePath1)
         {
             System.Text.Encoding sEnc1 = null;
@@ -612,6 +613,25 @@ namespace UtilLib
             control.Refresh();
         }
 
+        // 指定の区切り文字で区切ったトークンを抽出
+        static public string ExtTkn(ref string txData1, string txPunc1)
+        {
+            string txTkn1 = "";
+            int idChr1 = txData1.IndexOf(txPunc1);
+            if(idChr1 >= 0)
+            {
+                txTkn1 = txData1.Substring(0, idChr1);
+                txData1 = txData1.Substring(idChr1 + txPunc1.Length);
+            }
+            else
+            {
+                txTkn1 = txData1;
+                txData1 = "";
+            }
+
+            return (txTkn1);
+        }
+
         // タブあり文字列のタブを同等のスペースに変換
         static public string TabToSpace(string txSrc1, int ctChrTab1)
         {
@@ -639,6 +659,7 @@ namespace UtilLib
             return (txDst1);
         }
 
+        // 全角、半角を考慮した文字数を取得
         public static string MidB(string txSrc1, int idChrHead1, int ctChr1)
         {
             string txRes1 = "";
@@ -935,13 +956,14 @@ namespace UtilLib
             return (txRelPath1);
         }
 
-        public static DirectoryInfo SafeCreateDirectory(string path)
+        // 指定のパスにフォルダを作成
+        public static DirectoryInfo SafeCreateDirectory(string txDirPath1)
         {
-            if (Directory.Exists(path))
+            if (Directory.Exists(txDirPath1))
             {
                 return null;
             }
-            return Directory.CreateDirectory(path);
+            return Directory.CreateDirectory(txDirPath1);
         }
 
         public static Color GetColorFromTxt(string txColor1)
@@ -1143,6 +1165,7 @@ namespace UtilLib
             //dest = (T2)vt;
         }
 
+        // 数値配列を指定用文字列(1,2,3,5-7)に変換
         public static string GetSitTxt(List<bool> aflData1)
         {
             string txSit1 = "";
@@ -1206,6 +1229,7 @@ namespace UtilLib
             return (txSit1);
         }
 
+        // 指定用文字列(1,2,3,5-7)を解析して、数値配列を返す
         public static List<int> GetSitAry(string txSit1)
         {
             List<int> aidData1 = new List<int>();
