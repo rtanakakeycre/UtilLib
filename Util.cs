@@ -613,6 +613,20 @@ namespace UtilLib
             control.Refresh();
         }
 
+        // 指定の区切り文字で区切ったトークンを追加
+        static public void AddTkn(ref string txData1, string txTkn1, string txPunc1)
+        {
+            if(txData1 == "")
+            {
+                txData1 = txTkn1;
+            }
+            else
+            {
+                txData1 += txPunc1 + txTkn1;
+            }
+        }
+
+
         // 指定の区切り文字で区切ったトークンを抽出
         static public string ExtTkn(ref string txData1, string txPunc1)
         {
