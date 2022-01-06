@@ -1137,6 +1137,48 @@ namespace UtilLib
             //dest = (T2)vt;
         }
 
+        public static void CopyData<T1, T2>(T1 rfDst1, T2 rfSrc1)
+        // where T2 : struct//これがないとValueType vt = dest;ができない。
+        {
+            var tpDst1 = rfDst1.GetType();
+            var tpSrc1 = rfSrc1.GetType();
+            //構造体の場合はValueTypeにいったん置き換えないと値が更新されない。
+            //ValueType vt = dest;
+            //構造体の場合は以下のdestをvtに置き換えが必要
+
+
+            //お互いのフィールドとプロパティを列挙して名前が一致したものコピーする
+            foreach (var sPrpDst1 in tpDst1.GetProperties())
+            {
+                foreach (var sPrpSrc1 in tpSrc1.GetProperties().Where(_sPrp1 => _sPrp1.Name == sPrpDst1.Name))
+                {
+                    sPrpDst1.SetValue(rfDst1, sPrpSrc1.GetValue(rfSrc1));
+                }
+
+                foreach (var sPrpSrc1 in tpSrc1.GetFields().Where(_sPrp1 => _sPrp1.Name == sPrpDst1.Name))
+                {
+                    sPrpDst1.SetValue(rfDst1, sPrpSrc1.GetValue(rfSrc1));
+                }
+            }
+
+            foreach (var sFldDst1 in tpDst1.GetFields())
+            {
+                foreach (var sFldSrc1 in tpSrc1.GetProperties().Where(_sPrp1 => _sPrp1.Name == sFldDst1.Name))
+                {
+                    sFldDst1.SetValue(rfDst1, sFldSrc1.GetValue(rfSrc1));
+                }
+
+                foreach (var sFldSrc1 in tpSrc1.GetFields().Where(_sPrp1 => _sPrp1.Name == sFldDst1.Name))
+                {
+                    sFldDst1.SetValue(rfDst1, sFldSrc1.GetValue(rfSrc1));
+                }
+            }
+
+            //以下のはまた構造体のときに必要
+            //構造体に戻す
+            //dest = (T2)vt;
+        }
+
         public static void InitData<T1>(T1 source)
         // where T2 : struct//これがないとValueType vt = dest;ができない。
         {
