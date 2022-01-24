@@ -1,4 +1,4 @@
-﻿namespace McDbg_Ver2
+﻿namespace UtilLib
 {
     partial class NameEditFrm
     {

@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace McDbg_Ver2
+namespace UtilLib
 {
     public partial class NameEditFrm : Form
     {
