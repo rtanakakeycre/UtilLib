@@ -16,6 +16,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Web.UI;
 using System.Reflection;
+using System.IO.MemoryMappedFiles;
 
 namespace UtilLib
 {
@@ -1083,6 +1084,60 @@ namespace UtilLib
                 sFs1 = new FileStream(txXmlFile1, FileMode.Create);
 
                 sXs1.Serialize(sFs1, sData1);
+            }
+            catch (Exception e1)
+            {
+                MessageBox.Show("シリアライズに失敗しました。\n" + e1.Message);
+            }
+            finally
+            {
+                if (sFs1 != null)
+                {
+                    sFs1.Close();
+                }
+            }
+        }
+
+
+        // MMFに対するXMLデシリアライズ
+        public static void DeserializeFromMmf<T>(MemoryMappedFile sMmf1, ref T sData1, bool flErrDsp1 = false)
+        {
+
+            FileStream sFs1 = null;
+            try
+            {
+                XmlSerializer sXs1 = new XmlSerializer(typeof(T));
+
+                sData1 = (T)sXs1.Deserialize(sMmf1.CreateViewStream());
+            }
+            catch (Exception e1)
+            {
+                if (flErrDsp1)
+                {
+                    // エラー表示あり
+                    MessageBox.Show("デシリアライズに失敗しました。\n" + e1.Message);
+                }
+            }
+            finally
+            {
+                if (sFs1 != null)
+                {
+                    sFs1.Close();
+                }
+            }
+
+        }
+
+        // MMFに対するXMLシリアライズ
+        public static void SerializeToMmf<T>(MemoryMappedFile sMmf1, T sData1)
+        {
+            XmlSerializer sXs1;
+            FileStream sFs1 = null;
+            try
+            {
+                sXs1 = new XmlSerializer(typeof(T));
+
+                sXs1.Serialize(sMmf1.CreateViewStream(), sData1);
             }
             catch (Exception e1)
             {
