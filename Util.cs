@@ -1216,6 +1216,24 @@ namespace UtilLib
             //dest = (T2)vt;
         }
 
+        // DataGridViewの列見出しから列番号を取得
+        public static int GetDgvColIdx(DataGridView sDgv1, string txCol1)
+        {
+            int idCol2 = 0;
+
+            int idCol1;
+            for(idCol1 = 0; idCol1 < sDgv1.Columns.Count; idCol1++)
+            {
+                if(sDgv1.Columns[idCol1].HeaderText == txCol1)
+                {
+                    idCol2 = idCol1;
+                    break;
+                }
+            }
+
+            return (idCol2);
+        }
+
         public static void CopyData<T1, T2>(T1 rfDst1, T2 rfSrc1)
         // where T2 : struct//これがないとValueType vt = dest;ができない。
         {
