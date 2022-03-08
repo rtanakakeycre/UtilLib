@@ -17,6 +17,7 @@ using System.IO;
 using System.Web.UI;
 using System.Reflection;
 using System.IO.MemoryMappedFiles;
+using System.Threading;
 
 namespace UtilLib
 {
@@ -1150,6 +1151,29 @@ namespace UtilLib
                     sFs1.Close();
                 }
             }
+        }
+
+        // Mutex開始
+        public static bool StaMtx(out Mutex sMtx1, string txMtx1)
+        {
+            sMtx1 = new Mutex(false, txMtx1);
+            bool flMtx1 = false;
+            try
+            {
+                flMtx1 = sMtx1.WaitOne(1000, false);
+            }
+            catch (AbandonedMutexException)
+            {
+                flMtx1 = true;
+            }
+
+            return (flMtx1);
+        }
+
+        // Mutex終了
+        public static void EndMtx(Mutex sMtx1)
+        {
+            sMtx1.Close();
         }
 
         public static void CopyToData<T1, T2>(T1 source, T2 dest)
