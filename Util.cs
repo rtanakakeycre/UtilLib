@@ -1505,6 +1505,19 @@ namespace UtilLib
             return (asDesc1);
         }
 
+        // enumの別称から値を取得
+        public static object GetEnumVal(Type type1, string txAlias1)
+        {
+            object dtRes1 = 0;
+            sTX_INT sTxInt1 = GetDescriptionListFromEnum(type1).Where(_sTxInt1 => _sTxInt1.m_txName == txAlias1).First();
+
+            if(sTxInt1 != null)
+            {
+                dtRes1 = sTxInt1.m_dtVal;
+            }
+            return dtRes1;
+        }
+
         // enumの値から別称を取得
         public static string GetDescription(object value)
         {
