@@ -18,6 +18,7 @@ using System.Web.UI;
 using System.Reflection;
 using System.IO.MemoryMappedFiles;
 using System.Threading;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace UtilLib
 {
@@ -1106,11 +1107,16 @@ namespace UtilLib
             try
             {
                 XmlSerializer sXs1 = new XmlSerializer(typeof(T));
-
-                using (var sMmVs1 = sMmf1.CreateViewStream())
+                using (var sMmva1 = sMmf1.CreateViewAccessor())
                 {
-                    sData1 = (T)sXs1.Deserialize(sMmVs1);
+                    byte[] adtData1 = new byte[sMmva1.Capacity];
+                    sMmva1.ReadArray<byte>(0, adtData1, 0, adtData1.Length);
+                    
+                    BinaryFormatter sBf1 = new BinaryFormatter();
+                    MemoryStream sMs1 = new MemoryStream(adtData1);
+                    sData1 = (T)sBf1.Deserialize(sMs1);
                 }
+
             }
             catch (Exception e1)
             {
@@ -1134,10 +1140,35 @@ namespace UtilLib
             {
                 sXs1 = new XmlSerializer(typeof(T));
 
-                using (var sMmVs1 = sMmf1.CreateViewStream())
+                using (MemoryMappedViewAccessor sMmva1 = sMmf1.CreateViewAccessor())
                 {
-                    sXs1.Serialize(sMmVs1, sData1);
+                    SerializeToMmf(sMmva1, sData1);
+
                 }
+            }
+            catch (Exception e1)
+            {
+                MessageBox.Show("シリアライズに失敗しました。\n" + e1.Message);
+            }
+            finally
+            {
+            }
+        }
+
+        // MMFに対するXMLシリアライズ
+        public static void SerializeToMmf<T>(MemoryMappedViewAccessor sMmva1, T sData1)
+        {
+            XmlSerializer sXs1;
+            try
+            {
+                sXs1 = new XmlSerializer(typeof(T));
+
+                BinaryFormatter sBf1 = new BinaryFormatter();
+                MemoryStream sMs1 = new MemoryStream();
+                sBf1.Serialize(sMs1, sData1);
+                byte[] adtData1 = sMs1.ToArray();
+
+                sMmva1.WriteArray(0, adtData1, 0, adtData1.Length);
             }
             catch (Exception e1)
             {
