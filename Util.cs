@@ -1101,15 +1101,16 @@ namespace UtilLib
 
 
         // MMFに対するXMLデシリアライズ
-        public static void DeserializeFromMmf<T>(MemoryMappedFile sMmf1, ref T sData1, bool flErrDsp1 = false)
+        public static void DeserializeFromMmf<T>(MemoryMappedFile sMmf1, ref T sData1, bool flErrDsp1 = true)
         {
-
-            FileStream sFs1 = null;
             try
             {
                 XmlSerializer sXs1 = new XmlSerializer(typeof(T));
 
-                sData1 = (T)sXs1.Deserialize(sMmf1.CreateViewStream());
+                using (var sMmVs1 = sMmf1.CreateViewStream())
+                {
+                    sData1 = (T)sXs1.Deserialize(sMmVs1);
+                }
             }
             catch (Exception e1)
             {
@@ -1121,10 +1122,6 @@ namespace UtilLib
             }
             finally
             {
-                if (sFs1 != null)
-                {
-                    sFs1.Close();
-                }
             }
 
         }
@@ -1133,12 +1130,14 @@ namespace UtilLib
         public static void SerializeToMmf<T>(MemoryMappedFile sMmf1, T sData1)
         {
             XmlSerializer sXs1;
-            FileStream sFs1 = null;
             try
             {
                 sXs1 = new XmlSerializer(typeof(T));
 
-                sXs1.Serialize(sMmf1.CreateViewStream(), sData1);
+                using (var sMmVs1 = sMmf1.CreateViewStream())
+                {
+                    sXs1.Serialize(sMmVs1, sData1);
+                }
             }
             catch (Exception e1)
             {
@@ -1146,10 +1145,6 @@ namespace UtilLib
             }
             finally
             {
-                if (sFs1 != null)
-                {
-                    sFs1.Close();
-                }
             }
         }
 
