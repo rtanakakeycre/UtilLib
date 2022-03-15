@@ -1109,13 +1109,35 @@ namespace UtilLib
                 XmlSerializer sXs1 = new XmlSerializer(typeof(T));
                 using (var sMmva1 = sMmf1.CreateViewAccessor())
                 {
-                    byte[] adtData1 = new byte[sMmva1.Capacity];
-                    sMmva1.ReadArray<byte>(0, adtData1, 0, adtData1.Length);
-                    
-                    BinaryFormatter sBf1 = new BinaryFormatter();
-                    MemoryStream sMs1 = new MemoryStream(adtData1);
-                    sData1 = (T)sBf1.Deserialize(sMs1);
+                    DeserializeFromMmf(sMmva1, ref sData1, flErrDsp1);
                 }
+
+            }
+            catch (Exception e1)
+            {
+                if (flErrDsp1)
+                {
+                    // エラー表示あり
+                    MessageBox.Show("デシリアライズに失敗しました。\n" + e1.Message);
+                }
+            }
+            finally
+            {
+            }
+
+        }
+
+        // MMFに対するXMLデシリアライズ
+        public static void DeserializeFromMmf<T>(MemoryMappedViewAccessor sMmva1, ref T sData1, bool flErrDsp1 = true)
+        {
+            try
+            {
+                byte[] adtData1 = new byte[sMmva1.Capacity];
+                sMmva1.ReadArray<byte>(0, adtData1, 0, adtData1.Length);
+
+                BinaryFormatter sBf1 = new BinaryFormatter();
+                MemoryStream sMs1 = new MemoryStream(adtData1);
+                sData1 = (T)sBf1.Deserialize(sMs1);
 
             }
             catch (Exception e1)
