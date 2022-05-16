@@ -37,6 +37,15 @@ namespace UtilLib
         }
     }
 
+    // ポートタイプ
+    public enum ePORT_TYPE
+    {
+        [Description("シリアル")] SER,
+        [Description("プロセス")] PRS,
+        [Description("USB")] USB,
+        LMT
+    };
+
     public enum eSER_BRT
     {
         _300,
@@ -103,12 +112,12 @@ namespace UtilLib
         public const int EASY_CHK_DATA_MAX = 1024;
 
         static public string[] m_atxPortName;        // ポート
-        static public sTX_INT[] m_asBaudRate;        // ボーレート
-        static public sTX_INT[] m_asDataBits1;        // データビット
+        static public int[] m_adtSerBrt;        // シリアルボーレート
+        static public int[] m_adtDataBit1;        // データ長
         static public sTX_INT[] m_asParity1;        // パリティビット
-        static public sTX_INT[] m_asStopBits1;        // ストップビット
-        static public sTX_INT[] m_asHandShake1;        // ハンドシェイク
-        static public sTX_INT[] m_asUsbBaudRate;        // USBボーレート
+        static public sTX_INT[] m_asStopBit1;        // ストップビット
+        static public sTX_INT[] m_asFlwCtl1;        // フロー制御
+        static public int[] m_adtUsbBrt;        // USBボーレート
 
         static Com()
         {
@@ -116,34 +125,40 @@ namespace UtilLib
 
             m_atxPortName = SerialPort.GetPortNames();
 
-            m_asDataBits1 = new sTX_INT[] {
-                new sTX_INT("5", 5),
-                new sTX_INT("6", 6),
-                new sTX_INT("7", 7),
-                new sTX_INT("8", 8),
+            m_adtDataBit1 = new int[] {
+                5,
+                6,
+                7,
+                8,
             };
 
-            // ボーレート設定
-            m_asBaudRate = new sTX_INT[(int)eSER_BRT.LMT] {
-                new sTX_INT("300", 300),
-                new sTX_INT("600", 600),
-                new sTX_INT("1200", 1200),
-                new sTX_INT("2400", 2400),
-                new sTX_INT("4800", 4800),
-                new sTX_INT("9600", 9600),
-                new sTX_INT("14400", 14400),
-                new sTX_INT("19200", 19200),
-                new sTX_INT("28800", 28800),
-                new sTX_INT("38400", 38400),
-                new sTX_INT("57600", 57600),
-                new sTX_INT("115200", 115200),
-                new sTX_INT("230400", 230400),
-                new sTX_INT("208333", 208333),
-                new sTX_INT("312500", 312500),
+            // シリアルボーレート設定
+            m_adtSerBrt = new int[] {
+                300,
+                600,
+                1200,
+                2400,
+                4800,
+                9600,
+                14400,
+                19200,
+                28800,
+                38400,
+                57600,
+                115200,
+                230400,
+                208333,
+                312500,
             };
 
-            // ハンドシェイク
-            m_asHandShake1 = new sTX_INT[] {
+            // USBボーレート設定
+            m_adtUsbBrt = new int[] {
+                9600,
+                76800,
+            };
+
+            // フロー制御
+            m_asFlwCtl1 = new sTX_INT[] {
                 new sTX_INT("なし", (int)Handshake.None),
                 new sTX_INT("XON/XOFF制御", (int)Handshake.XOnXOff),
                 new sTX_INT("RTS/CTS制御", (int)Handshake.RequestToSend),
@@ -151,7 +166,7 @@ namespace UtilLib
             };
 
             // ストップビット
-            m_asStopBits1 = new sTX_INT[] {
+            m_asStopBit1 = new sTX_INT[] {
                 new sTX_INT("なし", (int)StopBits.None),
                 new sTX_INT("1", (int)StopBits.One),
                 new sTX_INT("1.5", (int)StopBits.OnePointFive),
@@ -167,30 +182,6 @@ namespace UtilLib
                 new sTX_INT("スペース", (int)Parity.Space),
             };
 
-            // ボーレート設定
-            m_asBaudRate = new sTX_INT[(int)eSER_BRT.LMT] {
-                new sTX_INT("300", 300),
-                new sTX_INT("600", 600),
-                new sTX_INT("1200", 1200),
-                new sTX_INT("2400", 2400),
-                new sTX_INT("4800", 4800),
-                new sTX_INT("9600", 9600),
-                new sTX_INT("14400", 14400),
-                new sTX_INT("19200", 19200),
-                new sTX_INT("28800", 28800),
-                new sTX_INT("38400", 38400),
-                new sTX_INT("57600", 57600),
-                new sTX_INT("115200", 115200),
-                new sTX_INT("230400", 230400),
-                new sTX_INT("208333", 208333),
-                new sTX_INT("312500", 312500),
-            };
-
-            // ボーレート設定
-            m_asUsbBaudRate = new sTX_INT[(int)eUSB_BRT.LMT] {
-                new sTX_INT("9600", 9600),
-                new sTX_INT("76800", 76800),
-            };
         }
 
         public Com()
@@ -289,15 +280,33 @@ namespace UtilLib
             return (bFlag1);
         }
 
-        static public string GetExePath()
+        //static public string GetExePath()
+        //{
+        //    return (Assembly.GetEntryAssembly().Location);
+        //}
+
+        // Exeパスを取得
+        public static string GetExePath()
         {
-            return (Assembly.GetEntryAssembly().Location);
+            return (AppDomain.CurrentDomain.BaseDirectory);
         }
 
         // 指定のフォルダパス内にあるすべてのファイルリストを取得
         static public List<string> GetFileListFromPath(string txDirPath1)
         {
             return (Directory.GetFiles(txDirPath1, "*", System.IO.SearchOption.AllDirectories).ToList());
+        }
+
+        // 指定のファイルパスからファイル名を取得
+        static public string GetFileName(string txPath1)
+        {
+            return (Path.GetFileName(txPath1));
+        }
+
+        // 指定のファイルパスからパスのみ取得
+        static public string GetDriPath(string txPath1)
+        {
+            return (Path.GetDirectoryName(txPath1));
         }
 
         /// <summary>
@@ -716,6 +725,16 @@ namespace UtilLib
 
         }
 
+        // テキストの左部分とマッチするか？
+        static public bool IsMatchTextLeft(string txAll1, string txLeft1)
+        {
+            bool flRes1 = false;
+            if(txAll1.Substring(0, Math.Min(txAll1.Length, txLeft1.Length)) == txLeft1)
+            {
+                flRes1 = true;
+            }
+            return (flRes1);
+        }
 
         [DllImport("user32.dll")]
         public static extern IntPtr SendMessage(
@@ -1012,10 +1031,10 @@ namespace UtilLib
         /// <summary>
         /// カレントパスと相対パスから絶対パスを取得します。
         /// </summary>
-        /// <param name="txBathPath1"></param>
+        /// <param name="txBasePath1"></param>
         /// <param name="txRelPath1"></param>
         /// <returns></returns>
-        public static string GetAbsPath(string txBathPath1, string txRelPath1)
+        public static string GetAbsPath(string txBasePath1, string txRelPath1)
         {
             string txAbsPath1 = "";
 
@@ -1026,7 +1045,7 @@ namespace UtilLib
             }
             else
             {
-                txAbsPath1 = txBathPath1 + @"\" + txRelPath1;
+                txAbsPath1 = txBasePath1 + @"\" + txRelPath1;
             }
 
             return (txAbsPath1);
@@ -1135,10 +1154,11 @@ namespace UtilLib
         }
 
         // XMLデシリアライズ
-        public static void Deserialize<T>(string txXmlFile1, ref T sData1, bool flErrDsp1 = false)
+        public static void Deserialize<T>(string txXmlFile1, ref T sData1, bool flErrDsp1 = false) where T : new()
         {
             if (!File.Exists(txXmlFile1))
             {
+                sData1 = new T();
                 return;
             }
 
@@ -1237,7 +1257,6 @@ namespace UtilLib
                 DefaultValueAttribute sAttName2 = (DefaultValueAttribute)srcProperty.GetCustomAttribute(typeof(DefaultValueAttribute));
                 if (sAttName2 == null)
                 {
-                    throw new Exception(srcProperty.Name + "に" + "「DefaultValueAttribute」" + "属性が設定されていません。");
                 }
                 else
                 {
@@ -1426,6 +1445,141 @@ namespace UtilLib
         public static int GetHashSbdm(int dtHash1, int dtChr1)
         {
             return (((dtChr1) + (dtHash1 << 6) + (dtHash1 << 16) - (dtHash1)));
+        }
+
+        // enumの型から別称リストと値のリストを取得
+        public static sTX_INT[] GetDescriptionListFromEnum(Type type1)
+        {
+            sTX_INT[] asDesc1 = new sTX_INT[Enum.GetValues(type1).Length - 1];
+            int idItem1 = 0;
+            foreach (var dtItem1 in Enum.GetValues(type1))
+            {
+                if (Enum.GetName(type1, dtItem1) == "LMT")
+                {
+
+                }
+                else
+                {
+                    asDesc1[idItem1] = new sTX_INT(GetDescription(dtItem1), (int)dtItem1);
+                    idItem1++;
+                }
+            }
+            return (asDesc1);
+        }
+
+        // enumの値から別称を取得
+        public static string GetDescription(object value)
+        {
+            string description = null;
+
+            FieldInfo fieldInfo = value.GetType().GetField(value.ToString());
+            Attribute attr = Attribute.GetCustomAttribute(fieldInfo, typeof(DescriptionAttribute));
+            if (attr != null)
+            {
+                DescriptionAttribute descAttr = (DescriptionAttribute)attr;
+                description = descAttr.Description;
+            }
+            return description;
+        }
+
+
+        /// <summary>
+        /// 指定したコントロールのイベントを一時的に無効化し、処理を実行します
+        /// </summary>
+        /// <param name="control">対象コントロールの入ったList</param>
+        /// <param name="action">実行したいイベント</param>
+        public static void DoSomethingWithoutEvents(List<System.Windows.Forms.Control> control, Action action)
+        {
+            if (control == null)
+                throw new ArgumentNullException();
+            if (action == null)
+                throw new ArgumentNullException();
+            foreach (var ctrl in control)
+            {
+                var eventHandlerInfo = RemoveAllEvents(ctrl);
+                try
+                {
+                    action();
+                }
+                finally
+                {
+                    RestoreEvents(eventHandlerInfo);
+                }
+            }
+        }
+        private static List<EventHandlerInfo> RemoveAllEvents(System.Windows.Forms.Control root)
+        {
+            var ret = new List<EventHandlerInfo>();
+            GetAllControls(root).ForEach((x) =>
+                ret.AddRange(RemoveEvents(x)));
+            return ret;
+        }
+        private static List<System.Windows.Forms.Control> GetAllControls(System.Windows.Forms.Control root)
+        {
+            var ret = new List<System.Windows.Forms.Control>() { root };
+            ret.AddRange(GetInnerControls(root));
+            return ret;
+        }
+        private static List<System.Windows.Forms.Control> GetInnerControls(System.Windows.Forms.Control root)
+        {
+            var ret = new List<System.Windows.Forms.Control>();
+            foreach (System.Windows.Forms.Control control in root.Controls)
+            {
+                ret.Add(control);
+                ret.AddRange(GetInnerControls(control));
+            }
+            return ret;
+        }
+        private static EventHandlerList GetEventHandlerList(System.Windows.Forms.Control control)
+        {
+            const string EVENTS = "EVENTS";
+            const BindingFlags FLAG = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase;
+            return (EventHandlerList)control.GetType().GetProperty(EVENTS, FLAG).GetValue(control, null);
+        }
+        private static List<object> GetEvents(System.Windows.Forms.Control control)
+        {
+            return GetEvents(control, control.GetType());
+        }
+        private static List<object> GetEvents(System.Windows.Forms.Control control, Type type)
+        {
+            const string EVENT = "EVENT";
+            const BindingFlags FLAG = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+            var ret = type.GetFields(FLAG).Where((x) =>
+                x.Name.ToUpper().StartsWith(EVENT)).Select((x) =>
+            x.GetValue(control)).ToList();
+            if (!type.Equals(typeof(System.Windows.Forms.Control)))
+                ret.AddRange(GetEvents(control, type.BaseType));
+            return ret;
+        }
+        private static List<EventHandlerInfo> RemoveEvents(System.Windows.Forms.Control control)
+        {
+            var ret = new List<EventHandlerInfo>();
+            var list = GetEventHandlerList(control);
+            foreach (var x in GetEvents(control))
+            {
+                ret.Add(new EventHandlerInfo(x, list, list[x]));
+                list.RemoveHandler(x, list[x]);
+            }
+            return ret;
+        }
+        private static void RestoreEvents(List<EventHandlerInfo> eventInfoList)
+        {
+            if (eventInfoList == null)
+                return;
+            eventInfoList.ForEach((x) =>
+                x.EventHandlerList.AddHandler(x.Key, x.EventHandler));
+        }
+        private sealed class EventHandlerInfo
+        {
+            public EventHandlerInfo(object key, EventHandlerList eventHandlerList, Delegate eventHandler)
+            {
+                this.Key = key;
+                this.EventHandlerList = eventHandlerList;
+                this.EventHandler = eventHandler;
+            }
+            public object Key { get; private set; }
+            public EventHandlerList EventHandlerList { get; private set; }
+            public Delegate EventHandler { get; private set; }
         }
     }
 
