@@ -1658,7 +1658,7 @@ namespace UtilLib
             const string EVENT = "EVENT";
             const BindingFlags FLAG = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
             var ret = type.GetFields(FLAG).Where((x) =>
-                x.Name.ToUpper().StartsWith(EVENT)).Select((x) =>
+                x.Name.ToUpper().EndsWith(EVENT)).Select((x) =>
             x.GetValue(control)).ToList();
             if (!type.Equals(typeof(System.Windows.Forms.Control)))
                 ret.AddRange(GetEvents(control, type.BaseType));
