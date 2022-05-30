@@ -1281,6 +1281,20 @@ namespace UtilLib
 
             return (idCol2);
         }
+        
+        // クラスのインスタンスのディープコピー
+        public static T DeepClone<T>(T src)
+        {
+            using (var memoryStream = new System.IO.MemoryStream())
+            {
+                var binaryFormatter
+                  = new System.Runtime.Serialization
+                        .Formatters.Binary.BinaryFormatter();
+                binaryFormatter.Serialize(memoryStream, src); // シリアライズ
+                memoryStream.Seek(0, System.IO.SeekOrigin.Begin);
+                return (T)binaryFormatter.Deserialize(memoryStream); // デシリアライズ
+            }
+        }
 
         public static void CopyData<T1, T2>(T1 rfDst1, T2 rfSrc1)
         // where T2 : struct//これがないとValueType vt = dest;ができない。
