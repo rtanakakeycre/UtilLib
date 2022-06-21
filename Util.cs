@@ -16,6 +16,9 @@ using System.Windows.Forms;
 using System.IO;
 using System.Web.UI;
 using System.Reflection;
+using System.IO.MemoryMappedFiles;
+using System.Threading;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace UtilLib
 {
@@ -37,63 +40,6 @@ namespace UtilLib
         }
     }
 
-    // ポートタイプ
-    public enum ePORT_TYPE
-    {
-        [Description("シリアル")] SER,
-        [Description("プロセス")] PRS,
-        [Description("USB")] USB,
-        LMT
-    };
-
-    public enum eSER_BRT
-    {
-        _300,
-        _600,
-        _1200,
-        _2400,
-        _4800,
-        _9600,
-        _14400,
-        _19200,
-        _28800,
-        _38400,
-        _57600,
-        _115200,
-        _230400,
-        _208333,
-        _312500,
-        LMT
-    };
-
-    // ハンドシェイク
-    public enum eSER_HSK
-    {
-        _300,
-        _600,
-        _1200,
-        _2400,
-        _4800,
-        _9600,
-        _14400,
-        _19200,
-        _28800,
-        _38400,
-        _57600,
-        _115200,
-        _230400,
-        _208333,
-        _312500,
-        LMT
-    };
-
-    public enum eUSB_BRT
-    {
-        _9600,
-        _76800,
-        LMT
-    };
-
     public enum eREEL
     {
         L,
@@ -104,107 +50,13 @@ namespace UtilLib
 
     public class Com
     {
-        public const int RCV_CMD_LEN_MAX = 32;
-        public const int SRI_RCV_DATA_SIZE = 32768;
-        public const int MMF_SIZE = 16384;
-        public const int DFL_LOG_GAME = 10;
-        public const int EASY_CHK_BUF_MAX = 1024;
-        public const int EASY_CHK_DATA_MAX = 1024;
-
-        static public string[] m_atxPortName;        // ポート
-        static public int[] m_adtSerBrt;        // シリアルボーレート
-        static public int[] m_adtDataBit1;        // データ長
-        static public sTX_INT[] m_asParity1;        // パリティビット
-        static public sTX_INT[] m_asStopBit1;        // ストップビット
-        static public sTX_INT[] m_asFlwCtl1;        // フロー制御
-        static public int[] m_adtUsbBrt;        // USBボーレート
-
         static Com()
         {
-            //! 利用可能なシリアルポート名の配列を取得する.
-
-            m_atxPortName = SerialPort.GetPortNames();
-
-            m_adtDataBit1 = new int[] {
-                5,
-                6,
-                7,
-                8,
-            };
-
-            // シリアルボーレート設定
-            m_adtSerBrt = new int[] {
-                300,
-                600,
-                1200,
-                2400,
-                4800,
-                9600,
-                14400,
-                19200,
-                28800,
-                38400,
-                57600,
-                115200,
-                230400,
-                208333,
-                312500,
-            };
-
-            // USBボーレート設定
-            m_adtUsbBrt = new int[] {
-                9600,
-                76800,
-            };
-
-            // フロー制御
-            m_asFlwCtl1 = new sTX_INT[] {
-                new sTX_INT("なし", (int)Handshake.None),
-                new sTX_INT("XON/XOFF制御", (int)Handshake.XOnXOff),
-                new sTX_INT("RTS/CTS制御", (int)Handshake.RequestToSend),
-                new sTX_INT("XON/XOFF + RTS/CTS制御", (int)Handshake.RequestToSendXOnXOff),
-            };
-
-            // ストップビット
-            m_asStopBit1 = new sTX_INT[] {
-                new sTX_INT("なし", (int)StopBits.None),
-                new sTX_INT("1", (int)StopBits.One),
-                new sTX_INT("1.5", (int)StopBits.OnePointFive),
-                new sTX_INT("2", (int)StopBits.Two),
-            };
-
-            // パリティ
-            m_asParity1 = new sTX_INT[] {
-                new sTX_INT("なし", (int)Parity.None),
-                new sTX_INT("奇数", (int)Parity.Odd),
-                new sTX_INT("偶数", (int)Parity.Even),
-                new sTX_INT("マーク", (int)Parity.Mark),
-                new sTX_INT("スペース", (int)Parity.Space),
-            };
-
         }
 
         public Com()
         {
 
-        }
-
-        // COM名からポート番号を取得
-        public static int GetPortIndx(string txPort1)
-        {
-            int idPort1 = -1;
-
-            int idPort2;
-            for (idPort2 = 0; idPort2 < m_atxPortName.Length; idPort2++)
-            {
-                if (m_atxPortName[idPort2] == txPort1)
-                {
-                    idPort1 = idPort2;
-                    break;
-                }
-            }
-
-            return (idPort1);
         }
 
         public enum eBASE_KIND
@@ -317,28 +169,28 @@ namespace UtilLib
         /// <returns></returns>
         static public string GetDirPathFromDlg(string txDirPath1, string txTitle1)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
+            OpenFileDialog sOfd1 = new OpenFileDialog();
 
             //string txInitDirPath1 = System.IO.Path.GetDirectoryName(txFileName1);
 
-            ofd.FileName = "任意のファイル";
-            ofd.InitialDirectory = txDirPath1;
-            ofd.Filter = "すべてのファイル(*.*)|*.*";
-            ofd.FilterIndex = 1;
+            sOfd1.FileName = "任意のファイル";
+            sOfd1.InitialDirectory = txDirPath1;
+            sOfd1.Filter = "すべてのファイル(*.*)|*.*";
+            sOfd1.FilterIndex = 1;
             //if (txInitDirPath1 != "")
             //{
             //    ofd.InitialDirectory = txInitDirPath1;
             //}
-            ofd.Title = txTitle1;
-            ofd.RestoreDirectory = false;
-            ofd.CheckFileExists = false;
-            ofd.CheckPathExists = true;
+            sOfd1.Title = txTitle1;
+            sOfd1.RestoreDirectory = false;
+            sOfd1.CheckFileExists = false;
+            sOfd1.CheckPathExists = true;
 
             string txDirPath2 = "";
             //ダイアログを表示する
-            if (ofd.ShowDialog() == DialogResult.OK)
+            if (sOfd1.ShowDialog() == DialogResult.OK)
             {
-                string txPath1 = ofd.FileName;
+                string txPath1 = sOfd1.FileName;
                 txDirPath2 = System.IO.Path.GetDirectoryName(txPath1);
             }
 
@@ -355,7 +207,7 @@ namespace UtilLib
         /// <returns></returns>
         static public string GetFilePathFromDlg(string txFileName1, string txTitle1, string txFilter1, bool bCheckFlag1 = false)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
+            OpenFileDialog sOfd1 = new OpenFileDialog();
 
             string txFileName2 = "";
             string txInitDirPath1 = "";
@@ -373,23 +225,23 @@ namespace UtilLib
                 txInitDirPath1 = System.IO.Path.GetDirectoryName(txFileName1);
             }
 
-            ofd.FileName = txFileName2;
-            ofd.Filter = txFilter1;
-            ofd.FilterIndex = 1;
+            sOfd1.FileName = txFileName2;
+            sOfd1.Filter = txFilter1;
+            sOfd1.FilterIndex = 1;
             if (txInitDirPath1 != "")
             {
-                ofd.InitialDirectory = txInitDirPath1;
+                sOfd1.InitialDirectory = txInitDirPath1;
             }
-            ofd.Title = txTitle1;
-            ofd.RestoreDirectory = false;
-            ofd.CheckFileExists = bCheckFlag1;
-            ofd.CheckPathExists = true;
+            sOfd1.Title = txTitle1;
+            sOfd1.RestoreDirectory = false;
+            sOfd1.CheckFileExists = bCheckFlag1;
+            sOfd1.CheckPathExists = true;
 
             string txPath1 = "";
             //ダイアログを表示する
-            if (ofd.ShowDialog() == DialogResult.OK)
+            if (sOfd1.ShowDialog() == DialogResult.OK)
             {
-                txPath1 = ofd.FileName;
+                txPath1 = sOfd1.FileName;
             }
 
             return (txPath1);
@@ -406,7 +258,7 @@ namespace UtilLib
         /// <returns></returns>
         static public string[] GetFilePathFromDlg(string txFileName1, string txTitle1, string txFilter1, bool bCheckFlag1, bool flMlt1)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
+            OpenFileDialog sOfd1 = new OpenFileDialog();
 
             string txFileName2 = "";
             string txInitDirPath1 = "";
@@ -417,24 +269,24 @@ namespace UtilLib
                 txInitDirPath1 = System.IO.Path.GetDirectoryName(txFileName1);
             }
 
-            ofd.FileName = txFileName2;
-            ofd.Filter = txFilter1;
-            ofd.FilterIndex = 1;
+            sOfd1.FileName = txFileName2;
+            sOfd1.Filter = txFilter1;
+            sOfd1.FilterIndex = 1;
             if (txInitDirPath1 != "")
             {
-                ofd.InitialDirectory = txInitDirPath1;
+                sOfd1.InitialDirectory = txInitDirPath1;
             }
-            ofd.Title = txTitle1;
-            ofd.RestoreDirectory = false;
-            ofd.CheckFileExists = bCheckFlag1;
-            ofd.CheckPathExists = true;
-            ofd.Multiselect = flMlt1;
+            sOfd1.Title = txTitle1;
+            sOfd1.RestoreDirectory = false;
+            sOfd1.CheckFileExists = bCheckFlag1;
+            sOfd1.CheckPathExists = true;
+            sOfd1.Multiselect = flMlt1;
 
             string[] atxPath1 = new string[0];
             //ダイアログを表示する
-            if (ofd.ShowDialog() == DialogResult.OK)
+            if (sOfd1.ShowDialog() == DialogResult.OK)
             {
-                atxPath1 = ofd.FileNames;
+                atxPath1 = sOfd1.FileNames;
             }
 
             return (atxPath1);
@@ -450,28 +302,28 @@ namespace UtilLib
         /// <returns></returns>
         static public string GetSaveFilePathFromDlg(string txFileName1, string txTitle1, string txFilter1, bool bCheckFlag1)
         {
-            SaveFileDialog sfd1 = new SaveFileDialog();
+            SaveFileDialog sOfd1 = new SaveFileDialog();
 
             string txFileName2 = System.IO.Path.GetFileName(txFileName1);
             string txInitDirPath1 = System.IO.Path.GetDirectoryName(txFileName1);
 
-            sfd1.FileName = txFileName2;
-            sfd1.Filter = txFilter1;
-            sfd1.FilterIndex = 1;
+            sOfd1.FileName = txFileName2;
+            sOfd1.Filter = txFilter1;
+            sOfd1.FilterIndex = 1;
             if (txInitDirPath1 != "")
             {
-                sfd1.InitialDirectory = txInitDirPath1;
+                sOfd1.InitialDirectory = txInitDirPath1;
             }
-            sfd1.Title = txTitle1;
-            sfd1.RestoreDirectory = false;
-            sfd1.CheckFileExists = bCheckFlag1;
-            sfd1.CheckPathExists = true;
+            sOfd1.Title = txTitle1;
+            sOfd1.RestoreDirectory = false;
+            sOfd1.CheckFileExists = bCheckFlag1;
+            sOfd1.CheckPathExists = true;
 
             string txPath1 = "";
             //ダイアログを表示する
-            if (sfd1.ShowDialog() == DialogResult.OK)
+            if (sOfd1.ShowDialog() == DialogResult.OK)
             {
-                txPath1 = sfd1.FileName;
+                txPath1 = sOfd1.FileName;
             }
 
             return (txPath1);
@@ -535,6 +387,7 @@ namespace UtilLib
             }
         }
 
+        // ファイルの文字コードを可能な限り解析して返す
         static public System.Text.Encoding GetFileEncoding(string txFilePath1)
         {
             System.Text.Encoding sEnc1 = null;
@@ -763,6 +616,39 @@ namespace UtilLib
             control.Refresh();
         }
 
+        // 指定の区切り文字で区切ったトークンを追加
+        static public void AddTkn(ref string txData1, string txTkn1, string txPunc1)
+        {
+            if(txData1 == "")
+            {
+                txData1 = txTkn1;
+            }
+            else
+            {
+                txData1 += txPunc1 + txTkn1;
+            }
+        }
+
+
+        // 指定の区切り文字で区切ったトークンを抽出
+        static public string ExtTkn(ref string txData1, string txPunc1)
+        {
+            string txTkn1 = "";
+            int idChr1 = txData1.IndexOf(txPunc1);
+            if(idChr1 >= 0)
+            {
+                txTkn1 = txData1.Substring(0, idChr1);
+                txData1 = txData1.Substring(idChr1 + txPunc1.Length);
+            }
+            else
+            {
+                txTkn1 = txData1;
+                txData1 = "";
+            }
+
+            return (txTkn1);
+        }
+
         // タブあり文字列のタブを同等のスペースに変換
         static public string TabToSpace(string txSrc1, int ctChrTab1)
         {
@@ -790,6 +676,7 @@ namespace UtilLib
             return (txDst1);
         }
 
+        // 全角、半角を考慮した文字数を取得
         public static string MidB(string txSrc1, int idChrHead1, int ctChr1)
         {
             string txRes1 = "";
@@ -1086,13 +973,14 @@ namespace UtilLib
             return (txRelPath1);
         }
 
-        public static DirectoryInfo SafeCreateDirectory(string path)
+        // 指定のパスにフォルダを作成
+        public static DirectoryInfo SafeCreateDirectory(string txDirPath1)
         {
-            if (Directory.Exists(path))
+            if (Directory.Exists(txDirPath1))
             {
                 return null;
             }
-            return Directory.CreateDirectory(path);
+            return Directory.CreateDirectory(txDirPath1);
         }
 
         public static Color GetColorFromTxt(string txColor1)
@@ -1162,14 +1050,13 @@ namespace UtilLib
                 return;
             }
 
+            FileStream sFs1 = null;
             try
             {
                 XmlSerializer sXs1 = new XmlSerializer(typeof(T));
-                FileStream sFs1 = new FileStream(txXmlFile1, FileMode.Open);
+                sFs1 = new FileStream(txXmlFile1, FileMode.Open);
 
                 sData1 = (T)sXs1.Deserialize(sFs1);
-
-                sFs1.Close();
             }
             catch (Exception e1)
             {
@@ -1179,6 +1066,13 @@ namespace UtilLib
                     MessageBox.Show("デシリアライズに失敗しました。\n" + e1.Message);
                 }
             }
+            finally
+            {
+                if(sFs1 != null)
+                {
+                    sFs1.Close();
+                }
+            }
 
         }
 
@@ -1186,19 +1080,149 @@ namespace UtilLib
         public static void Serialize<T>(string txXmlFile1, T sData1)
         {
             XmlSerializer sXs1;
+            FileStream sFs1 = null;
             try
             {
                 sXs1 = new XmlSerializer(typeof(T));
-                FileStream sFs1 = new FileStream(txXmlFile1, FileMode.Create);
+                sFs1 = new FileStream(txXmlFile1, FileMode.Create);
 
                 sXs1.Serialize(sFs1, sData1);
-
-                sFs1.Close();
             }
             catch (Exception e1)
             {
                 MessageBox.Show("シリアライズに失敗しました。\n" + e1.Message);
             }
+            finally
+            {
+                if (sFs1 != null)
+                {
+                    sFs1.Close();
+                }
+            }
+        }
+
+
+        // MMFに対するXMLデシリアライズ
+        public static void DeserializeFromMmf<T>(MemoryMappedFile sMmf1, ref T sData1, bool flErrDsp1 = true)
+        {
+            try
+            {
+                XmlSerializer sXs1 = new XmlSerializer(typeof(T));
+                using (var sMmva1 = sMmf1.CreateViewAccessor())
+                {
+                    DeserializeFromMmf(sMmva1, ref sData1, flErrDsp1);
+                }
+
+            }
+            catch (Exception e1)
+            {
+                if (flErrDsp1)
+                {
+                    // エラー表示あり
+                    MessageBox.Show("デシリアライズに失敗しました。\n" + e1.Message);
+                }
+            }
+            finally
+            {
+            }
+
+        }
+
+        // MMFに対するXMLデシリアライズ
+        public static void DeserializeFromMmf<T>(MemoryMappedViewAccessor sMmva1, ref T sData1, bool flErrDsp1 = true)
+        {
+            try
+            {
+                byte[] adtData1 = new byte[sMmva1.Capacity];
+                sMmva1.ReadArray<byte>(0, adtData1, 0, adtData1.Length);
+
+                BinaryFormatter sBf1 = new BinaryFormatter();
+                MemoryStream sMs1 = new MemoryStream(adtData1);
+                sData1 = (T)sBf1.Deserialize(sMs1);
+
+            }
+            catch (Exception e1)
+            {
+                if (flErrDsp1)
+                {
+                    // エラー表示あり
+                    MessageBox.Show("デシリアライズに失敗しました。\n" + e1.Message);
+                }
+            }
+            finally
+            {
+            }
+
+        }
+
+        // MMFに対するXMLシリアライズ
+        public static void SerializeToMmf<T>(MemoryMappedFile sMmf1, T sData1)
+        {
+            XmlSerializer sXs1;
+            try
+            {
+                sXs1 = new XmlSerializer(typeof(T));
+
+                using (MemoryMappedViewAccessor sMmva1 = sMmf1.CreateViewAccessor())
+                {
+                    SerializeToMmf(sMmva1, sData1);
+
+                }
+            }
+            catch (Exception e1)
+            {
+                MessageBox.Show("シリアライズに失敗しました。\n" + e1.Message);
+            }
+            finally
+            {
+            }
+        }
+
+        // MMFに対するXMLシリアライズ
+        public static void SerializeToMmf<T>(MemoryMappedViewAccessor sMmva1, T sData1)
+        {
+            XmlSerializer sXs1;
+            try
+            {
+                sXs1 = new XmlSerializer(typeof(T));
+
+                BinaryFormatter sBf1 = new BinaryFormatter();
+                MemoryStream sMs1 = new MemoryStream();
+                sBf1.Serialize(sMs1, sData1);
+                byte[] adtData1 = sMs1.ToArray();
+
+                sMmva1.WriteArray(0, adtData1, 0, adtData1.Length);
+            }
+            catch (Exception e1)
+            {
+                MessageBox.Show("シリアライズに失敗しました。\n" + e1.Message);
+            }
+            finally
+            {
+            }
+        }
+
+        // Mutex開始
+        public static bool StaMtx(out Mutex sMtx1, string txMtx1)
+        {
+            sMtx1 = new Mutex(false, txMtx1);
+            bool flMtx1 = false;
+            try
+            {
+                flMtx1 = sMtx1.WaitOne(1000, false);
+            }
+            catch (AbandonedMutexException)
+            {
+                flMtx1 = true;
+            }
+
+            return (flMtx1);
+        }
+
+        // Mutex終了
+        public static void EndMtx(Mutex sMtx1)
+        {
+            sMtx1.Close();
         }
 
         public static void CopyToData<T1, T2>(T1 source, T2 dest)
@@ -1233,6 +1257,80 @@ namespace UtilLib
                 foreach (var sourceField in sourceType.GetFields().Where(v => v.Name == destField.Name))
                 {
                     destField.SetValue(dest, sourceField.GetValue(source));
+                }
+            }
+
+            //以下のはまた構造体のときに必要
+            //構造体に戻す
+            //dest = (T2)vt;
+        }
+
+        // DataGridViewの列見出しから列番号を取得
+        public static int GetDgvColIdx(DataGridView sDgv1, string txCol1)
+        {
+            int idCol2 = 0;
+
+            int idCol1;
+            for(idCol1 = 0; idCol1 < sDgv1.Columns.Count; idCol1++)
+            {
+                if(sDgv1.Columns[idCol1].HeaderText == txCol1)
+                {
+                    idCol2 = idCol1;
+                    break;
+                }
+            }
+
+            return (idCol2);
+        }
+        
+        // クラスのインスタンスのディープコピー
+        public static T DeepClone<T>(T src)
+        {
+            using (var memoryStream = new System.IO.MemoryStream())
+            {
+                var binaryFormatter
+                  = new System.Runtime.Serialization
+                        .Formatters.Binary.BinaryFormatter();
+                binaryFormatter.Serialize(memoryStream, src); // シリアライズ
+                memoryStream.Seek(0, System.IO.SeekOrigin.Begin);
+                return (T)binaryFormatter.Deserialize(memoryStream); // デシリアライズ
+            }
+        }
+
+        public static void CopyData<T1, T2>(T1 rfDst1, T2 rfSrc1)
+        // where T2 : struct//これがないとValueType vt = dest;ができない。
+        {
+            var tpDst1 = rfDst1.GetType();
+            var tpSrc1 = rfSrc1.GetType();
+            //構造体の場合はValueTypeにいったん置き換えないと値が更新されない。
+            //ValueType vt = dest;
+            //構造体の場合は以下のdestをvtに置き換えが必要
+
+
+            //お互いのフィールドとプロパティを列挙して名前が一致したものコピーする
+            foreach (var sPrpDst1 in tpDst1.GetProperties())
+            {
+                foreach (var sPrpSrc1 in tpSrc1.GetProperties().Where(_sPrp1 => _sPrp1.Name == sPrpDst1.Name))
+                {
+                    sPrpDst1.SetValue(rfDst1, sPrpSrc1.GetValue(rfSrc1));
+                }
+
+                foreach (var sPrpSrc1 in tpSrc1.GetFields().Where(_sPrp1 => _sPrp1.Name == sPrpDst1.Name))
+                {
+                    sPrpDst1.SetValue(rfDst1, sPrpSrc1.GetValue(rfSrc1));
+                }
+            }
+
+            foreach (var sFldDst1 in tpDst1.GetFields())
+            {
+                foreach (var sFldSrc1 in tpSrc1.GetProperties().Where(_sPrp1 => _sPrp1.Name == sFldDst1.Name))
+                {
+                    sFldDst1.SetValue(rfDst1, sFldSrc1.GetValue(rfSrc1));
+                }
+
+                foreach (var sFldSrc1 in tpSrc1.GetFields().Where(_sPrp1 => _sPrp1.Name == sFldDst1.Name))
+                {
+                    sFldDst1.SetValue(rfDst1, sFldSrc1.GetValue(rfSrc1));
                 }
             }
 
@@ -1282,6 +1380,7 @@ namespace UtilLib
             //dest = (T2)vt;
         }
 
+        // 数値配列を指定用文字列(1,2,3,5-7)に変換
         public static string GetSitTxt(List<bool> aflData1)
         {
             string txSit1 = "";
@@ -1345,6 +1444,7 @@ namespace UtilLib
             return (txSit1);
         }
 
+        // 指定用文字列(1,2,3,5-7)を解析して、数値配列を返す
         public static List<int> GetSitAry(string txSit1)
         {
             List<int> aidData1 = new List<int>();
@@ -1467,6 +1567,19 @@ namespace UtilLib
             return (asDesc1);
         }
 
+        // enumの別称から値を取得
+        public static object GetEnumVal(Type type1, string txAlias1)
+        {
+            object dtRes1 = 0;
+            sTX_INT sTxInt1 = GetDescriptionListFromEnum(type1).Where(_sTxInt1 => _sTxInt1.m_txName == txAlias1).First();
+
+            if(sTxInt1 != null)
+            {
+                dtRes1 = sTxInt1.m_dtVal;
+            }
+            return dtRes1;
+        }
+
         // enumの値から別称を取得
         public static string GetDescription(object value)
         {
@@ -1545,7 +1658,7 @@ namespace UtilLib
             const string EVENT = "EVENT";
             const BindingFlags FLAG = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
             var ret = type.GetFields(FLAG).Where((x) =>
-                x.Name.ToUpper().StartsWith(EVENT)).Select((x) =>
+                x.Name.ToUpper().EndsWith(EVENT)).Select((x) =>
             x.GetValue(control)).ToList();
             if (!type.Equals(typeof(System.Windows.Forms.Control)))
                 ret.AddRange(GetEvents(control, type.BaseType));
