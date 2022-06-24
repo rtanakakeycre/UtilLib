@@ -234,6 +234,20 @@ namespace UtilLib
         };
 
 
+        static public string AddTxtToTxt(string txPas1, string txAct1, string txPnc1)
+        {
+            if(txPas1 == "")
+            {
+                txPas1 = txAct1;
+            }
+            else
+            {
+                txPas1 = txPas1 + txPnc1 + txAct1;
+            }
+
+            return (txPas1);
+        }
+
         /// <summary>
         /// テキストから数値を取得します。
         /// </summary>
@@ -455,7 +469,7 @@ namespace UtilLib
         /// <param name="txFileName1"></param>
         /// <param name="txTitle1"></param>
         /// <param name="txFilter1"></param>
-        /// <param name="bCheckFlag1"></param>
+        /// <param name="bCheckFlag1">ファイルが既に存在するかをチェックするか</param>
         /// <returns></returns>
         static public string GetSaveFilePathFromDlg(string txFileName1, string txTitle1, string txFilter1, bool bCheckFlag1)
         {
