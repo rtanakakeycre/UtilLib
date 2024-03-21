@@ -1459,6 +1459,46 @@ namespace UtilLib
         {
             return (((dtChr1) + (dtHash1 << 6) + (dtHash1 << 16) - (dtHash1)));
         }
+
+        // 指定した型の親コントロールを探す関数
+        public static System.Windows.Forms.Control GetParentControl(System.Windows.Forms.Control control, Type parentType)
+        {
+            // 現在のコントロールの親を取得
+            System.Windows.Forms.Control currentParent = control.Parent;
+
+            // 親コントロールがなくなるまでループ
+            while (currentParent != null)
+            {
+                // 親コントロールの型が指定した型と一致するかチェック
+                if (currentParent.GetType() == parentType)
+                {
+                    return currentParent; // 指定の型が見つかったらそのインスタンスを返す
+                }
+                // 一致しない場合は、さらにその親コントロールを探す
+                currentParent = currentParent.Parent;
+            }
+
+            // 指定の型が見つからなかった場合
+            return null;
+        }
+
+        public static string AddTxtWithPunc(string txSrc1, string txDst1, string txPunc1)
+        {
+            string txRes1 = "";
+            if(txSrc1 == "" && txDst1 == "")
+            {
+            }
+            else if (txSrc1 != "" && txDst1 != "")
+            {
+                txRes1 = txSrc1 + txPunc1 + txDst1;
+            }
+            else
+            {
+                txRes1 = txSrc1 + txDst1;
+            }
+            return (txRes1);
+        }
+
     }
 
 }
